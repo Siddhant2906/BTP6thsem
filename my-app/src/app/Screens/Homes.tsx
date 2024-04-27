@@ -4,7 +4,9 @@ import Navbar from '../components/Navbar';
 
 const Homes = () => {
   return (
-    <div><Navbar/></div>
+    <div>
+      <Navbar/>
+    </div>
   )
 }
 
