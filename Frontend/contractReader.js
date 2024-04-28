@@ -4,7 +4,7 @@ import { http, createConfig } from '@wagmi/core'
 import { sepolia } from '@wagmi/core/chains'
 
 
-async function useTest(functionName, args) {
+async function contractReader(functionName, args) {
 
     const config = createConfig({
         chains: [sepolia],
@@ -22,4 +22,4 @@ async function useTest(functionName, args) {
     })
     console.log(result)
 }
-export default useTest;
+export default contractReader;
