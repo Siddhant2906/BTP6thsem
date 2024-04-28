@@ -358,14 +358,14 @@ const Home = () => {
 
 
 
-                                <button onClick={capturePhoto}>Capture</button>
+                                <button onClick={capturePhoto} id='capture'>Capture</button>
 
 
 
                                 <button onClick={() => {
                                     setUrl(null);
                                     setShowWebcam(true);
-                                }}>Refresh</button>
+                                }} id='refresh'>Refresh</button>
 
                                 {/* {url && (
                                     <div>
