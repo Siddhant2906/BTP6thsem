@@ -21,10 +21,6 @@
       "@/*": ["./src/*"]
     }
   },
-<<<<<<< HEAD
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "contractReader.js", "src/app/Screens/Test.jsx"],
-=======
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/app/Screens/Homes.jsx"],
->>>>>>> main
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules"],
 }

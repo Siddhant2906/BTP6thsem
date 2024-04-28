@@ -9,7 +9,7 @@ import { CgMergeVertical, CgMergeHorizontal } from 'react-icons/cg'
 import { IoMdUndo, IoMdRedo, IoIosImage } from 'react-icons/io'
 import storeData from './LinkedList'
 import Navbar from '../components/Navbar';
-
+const JWT = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiJkM2IyYTM0NS05YTNjLTRhYTYtYmE3ZC04YjA1YzRjZDg2MTIiLCJlbWFpbCI6InJhanB1dGFudWowNDFAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsInBpbl9wb2xpY3kiOnsicmVnaW9ucyI6W3siaWQiOiJGUkExIiwiZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjF9LHsiaWQiOiJOWUMxIiwiZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjF9XSwidmVyc2lvbiI6MX0sIm1mYV9lbmFibGVkIjpmYWxzZSwic3RhdHVzIjoiQUNUSVZFIn0sImF1dGhlbnRpY2F0aW9uVHlwZSI6InNjb3BlZEtleSIsInNjb3BlZEtleUtleSI6IjYzOWNlMDFhNGMwODU5YzE1MTgzIiwic2NvcGVkS2V5U2VjcmV0IjoiYzgyMGZjOWZiODJkMGVjNmQxMGMwMWIzYTJiNjQ4YzE3MzkzM2UxZGM5ZmI1OGI3MGQ2NGM2ZDM1MzE0NGUzYSIsImlhdCI6MTcxNDM0MjA5NX0.LvkmyxLYVX536IWnyj_CQFNoqTlFuPNIfpJGMwvwQH0'
 const videoConstraints = {
     width: 540,
     facingMode: 'environment'
@@ -225,7 +225,7 @@ const Home = () => {
             image: base64Url
         })
     }
-    const saveImage = () => {
+    const saveImage = async () => {
         const canvas = document.createElement('canvas')
         canvas.width = details.naturalHeight
         canvas.height = details.naturalHeight
@@ -249,21 +249,42 @@ const Home = () => {
         // link.download = 'image_edit.jpg'
         // link.href=canvas.toDataURL()
         // link.click()
-
-        fetch('canvas.toDataURL()')
-            .then(res => res.blob()) // Gets the response and returns it as a blob
-            .then(blob => {
-                console.log(blob);
-                // Here's where you get access to the blob
-                // And you can use it for whatever you want
-                // Like calling ref().put(blob)
-
-                // Here, I use it to make an image appear on the page
-                let objectURL = URL.createObjectURL(blob);
-                let myImage = new Image();
-                myImage.src = objectURL;
-                document.getElementById('myImg').appendChild(myImage)
+        try {
+            const jpgDataURL = canvas.toDataURL('image/jpeg');
+            const url = await fetch(jpgDataURL);
+            const blob = await url.blob();
+            console.log(blob);
+            const data = new FormData();
+            data.append('file', blob);
+            
+            const res = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${JWT}`,
+                },
+                body: data,
             });
+            const resData = await res.json();
+            console.log(resData.IpfsHash);
+            const IMG = `https://amaranth-holy-trout-250.mypinata.cloud/ipfs/${resData.IpfsHash}`;
+            console.log(IMG);
+            let myImage = new Image();
+            myImage.src = IMG;
+            document.getElementById('myImg').appendChild(myImage)
+
+        } catch (error) {
+            console.log(error);
+        }
+
+        // .then(res => res.blob()) // Gets the response and returns it as a blob
+        // .then(blob => {
+        //     console.log(blob);
+
+        //     let objectURL = URL.createObjectURL(blob);
+        //     let myImage = new Image();
+        //     myImage.src = objectURL;
+        //     document.getElementById('myImg').appendChild(myImage)
+        // });
     }
     return (
         <>
