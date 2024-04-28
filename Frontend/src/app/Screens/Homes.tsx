@@ -6,6 +6,7 @@ const Homes = () => {
   return (
     <div>
       <Navbar/>
+      Hello
     </div>
   )
 }
