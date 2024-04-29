@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useRef } from 'react'
+import axios from 'axios';
 import ReactCrop from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css'
 import Webcam from 'react-webcam';
@@ -10,6 +11,7 @@ import { IoMdUndo, IoMdRedo, IoIosImage } from 'react-icons/io'
 import storeData from './LinkedList'
 import Navbar from '../components/Navbar';
 const JWT = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiJkM2IyYTM0NS05YTNjLTRhYTYtYmE3ZC04YjA1YzRjZDg2MTIiLCJlbWFpbCI6InJhanB1dGFudWowNDFAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsInBpbl9wb2xpY3kiOnsicmVnaW9ucyI6W3siaWQiOiJGUkExIiwiZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjF9LHsiaWQiOiJOWUMxIiwiZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjF9XSwidmVyc2lvbiI6MX0sIm1mYV9lbmFibGVkIjpmYWxzZSwic3RhdHVzIjoiQUNUSVZFIn0sImF1dGhlbnRpY2F0aW9uVHlwZSI6InNjb3BlZEtleSIsInNjb3BlZEtleUtleSI6IjYzOWNlMDFhNGMwODU5YzE1MTgzIiwic2NvcGVkS2V5U2VjcmV0IjoiYzgyMGZjOWZiODJkMGVjNmQxMGMwMWIzYTJiNjQ4YzE3MzkzM2UxZGM5ZmI1OGI3MGQ2NGM2ZDM1MzE0NGUzYSIsImlhdCI6MTcxNDM0MjA5NX0.LvkmyxLYVX536IWnyj_CQFNoqTlFuPNIfpJGMwvwQH0'
+
 const videoConstraints = {
     width: 540,
     facingMode: 'environment'
@@ -77,8 +79,6 @@ const Home = () => {
             ...state,
             [e.target.name]: e.target.value
         })
-
-
     }
 
     const [showWebcam, setShowWebcam] = useState(true);
@@ -95,23 +95,74 @@ const Home = () => {
         img.src = imageSrc;
 
         // When the image is loaded, draw it onto the canvas
-        img.onload = function () {
+        img.onload = async function () {
             canvas.width = img.width;
             canvas.height = img.height;
             ctx.drawImage(img, 0, 0);
 
-            // Convert the canvas to a data URL with JPG format
             const jpgImageDataUrl = canvas.toDataURL('image/jpeg');
 
-            // Update the state with the JPG image URL
+            const url = await fetch(jpgImageDataUrl);
+            const blob = await url.blob();
+            console.log(blob);
+            const data = new FormData();
+            data.append('file', blob);
+
+            const res = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${JWT}`,
+                },
+                body: data,
+            });
+            const resData = await res.json();
+            console.log(resData.IpfsHash);
+            const IMG = `https://amaranth-holy-trout-250.mypinata.cloud/ipfs/${resData.IpfsHash}`;
+            console.log(IMG);
+            let myImage = new Image();
+            myImage.src = IMG;
+            document.getElementById('myImg').appendChild(myImage);
+
+            var time = new Date().toLocaleTimeString();
+
+            var data1 = JSON.stringify({
+                "pinataOptions": {
+                    "cidVersion": 1
+                },
+                "pinataMetadata": {
+                    "name": "Fetching Fake",
+                    "keyvalues": {
+                        "Time": "Evening"
+                    }
+                },
+                "pinataContent": {
+                    "imageHash": `${resData.IpfsHash}`,
+                    "Location": "Pune, MH",
+                    "Time": `${time}`
+
+                }
+            });
+
+            var config = {
+                method: 'post',
+                url: 'https://api.pinata.cloud/pinning/pinJSONToIPFS',
+                headers: {
+                    'Content-Type': 'application/json',
+                    pinata_api_key: `0658da334e87d1d5fee8`,
+                    pinata_secret_api_key: `9a6818e300e13a321f178aa60b95882f0938d529c1a85e6ca3aeb908b547b126`,
+                },
+                data: data1
+            };
+
+            const resp = await axios(config);
+            console.log("JSON TO IPFS", resp.data.IpfsHash);
+
             setUrl(jpgImageDataUrl);
             setShowWebcam(false);
-            // Update the state with the image data
             setState({
                 ...state,
                 image: jpgImageDataUrl
             });
-
             console.log(jpgImageDataUrl);
         };
 
@@ -245,10 +296,6 @@ const Home = () => {
             canvas.height
         )
 
-        // const link = document.createElement('a')
-        // link.download = 'image_edit.jpg'
-        // link.href=canvas.toDataURL()
-        // link.click()
         try {
             const jpgDataURL = canvas.toDataURL('image/jpeg');
             const url = await fetch(jpgDataURL);
@@ -256,7 +303,7 @@ const Home = () => {
             console.log(blob);
             const data = new FormData();
             data.append('file', blob);
-            
+
             const res = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
                 method: "POST",
                 headers: {
@@ -270,21 +317,46 @@ const Home = () => {
             console.log(IMG);
             let myImage = new Image();
             myImage.src = IMG;
-            document.getElementById('myImg').appendChild(myImage)
+            document.getElementById('myImg').appendChild(myImage);
+
+            var time = new Date().toLocaleTimeString();
+
+            var data1 = JSON.stringify({
+                "pinataOptions": {
+                    "cidVersion": 1
+                },
+                "pinataMetadata": {
+                    "name": "Fetching Fake",
+                    "keyvalues": {
+                        "Time": "Evening"
+                    }
+                },
+                "pinataContent": {
+                    "imageHash": `${resData.IpfsHash}`,
+                    "Location": "Pune, MH",
+                    "Time": `${time}`
+
+                }
+            });
+
+            var config = {
+                method: 'post',
+                url: 'https://api.pinata.cloud/pinning/pinJSONToIPFS',
+                headers: {
+                    'Content-Type': 'application/json',
+                    pinata_api_key: `0658da334e87d1d5fee8`,
+                    pinata_secret_api_key: `9a6818e300e13a321f178aa60b95882f0938d529c1a85e6ca3aeb908b547b126`,
+                },
+                data: data1
+            };
+
+            const resp = await axios(config);
+            console.log("JSON TO IPFS", resp);
 
         } catch (error) {
             console.log(error);
         }
 
-        // .then(res => res.blob()) // Gets the response and returns it as a blob
-        // .then(blob => {
-        //     console.log(blob);
-
-        //     let objectURL = URL.createObjectURL(blob);
-        //     let myImage = new Image();
-        //     myImage.src = objectURL;
-        //     document.getElementById('myImg').appendChild(myImage)
-        // });
     }
     return (
         <>
@@ -340,9 +412,6 @@ const Home = () => {
                             ) : (
                                 <div className="image">
                                     {
-
-
-
                                         state.image ? <ReactCrop crop={crop} onChange={c => setCrop(c)}>
                                             <img onLoad={(e) => setDetails(e.currentTarget)} style={{ filter: `brightness(${state.brightness}%) brightness(${state.brightness}%) sepia(${state.sepia}%) saturate(${state.saturate}%) contrast(${state.contrast}%) grayscale(${state.grayscale}%) hue-rotate(${state.hueRotate}deg)`, transform: `rotate(${state.rotate}deg) scale(${state.vartical},${state.horizental})` }} src={state.image} alt="" />
                                         </ReactCrop> :
@@ -355,23 +424,12 @@ const Home = () => {
                             )}
 
                             <>
-
-
-
                                 <button onClick={capturePhoto} id='capture'>Capture</button>
-
-
 
                                 <button onClick={() => {
                                     setUrl(null);
                                     setShowWebcam(true);
                                 }} id='refresh'>Refresh</button>
-
-                                {/* {url && (
-                                    <div>
-                                        <img src={url} alt="Screenshot" />
-                                    </div>
-                                )} */}
                             </>
                             <div className="image_select">
                                 <button onClick={undo} className='undo'><IoMdUndo /></button>
