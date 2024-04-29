@@ -16,8 +16,8 @@ contract Pixel {
         tokenID++;
     }
 
-    function editFile (string memory hash, uint256 tokenid) public {
-        s_tokenID_hash[tokenid].push(hash);
+    function editFile (string memory hash) public {
+        s_tokenID_hash[tokenID - 1].push(hash);
     }
 
     function getCurrentTokenID () public view returns (uint256){

@@ -5,6 +5,17 @@ import ReactCrop from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css'
 import Webcam from 'react-webcam';
 
+import {
+    useAccount,
+    useWriteContract,
+} from 'wagmi'
+import contractWrite from '../../../writeContract';
+
+import { readContract } from '@wagmi/core'
+import { abi } from '../../../constants/abi';
+import { http, createConfig } from '@wagmi/core'
+import { sepolia } from '@wagmi/core/chains'
+
 import { GrRotateLeft, GrRotateRight } from 'react-icons/gr'
 import { CgMergeVertical, CgMergeHorizontal } from 'react-icons/cg'
 import { IoMdUndo, IoMdRedo, IoIosImage } from 'react-icons/io'
@@ -18,6 +29,12 @@ const videoConstraints = {
 };
 
 const Home = () => {
+
+    const {
+        writeContract
+    } = useWriteContract()
+    const { address } = useAccount()
+
     const filterElement = [
 
         {
@@ -53,8 +70,6 @@ const Home = () => {
 
     const webcamRef = useRef(null);
     const [url, setUrl] = useState(null);
-
-
 
 
     const onUserMedia = (e) => {
@@ -108,6 +123,13 @@ const Home = () => {
             const data = new FormData();
             data.append('file', blob);
 
+            setUrl(jpgImageDataUrl);
+            setShowWebcam(false);
+            setState({
+                ...state,
+                image: jpgImageDataUrl
+            });
+
             const res = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
                 method: "POST",
                 headers: {
@@ -157,13 +179,8 @@ const Home = () => {
             const resp = await axios(config);
             console.log("JSON TO IPFS", resp.data.IpfsHash);
 
-            setUrl(jpgImageDataUrl);
-            setShowWebcam(false);
-            setState({
-                ...state,
-                image: jpgImageDataUrl
-            });
-            console.log(jpgImageDataUrl);
+            await contractWrite('addFile',[`${resp.data.IpfsHash}`], writeContract);
+
         };
 
 
@@ -351,7 +368,9 @@ const Home = () => {
             };
 
             const resp = await axios(config);
-            console.log("JSON TO IPFS", resp);
+
+            await contractWrite('editFile',[`${resp.data.IpfsHash}`], writeContract)
+            console.log("JSON TO IPFS", resp.data.IpfsHash);
 
         } catch (error) {
             console.log(error);

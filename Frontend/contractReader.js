@@ -15,11 +15,12 @@ async function contractReader(functionName, args) {
 
     const result = await readContract(config, {
         abi,
-        address: '0x8F30E3b25836d8f60717a3d4E7Addbe7A8864195',
+        address: '0x88F71af24eE19bD093fdFd5F06EaFc72374cE7B9',
         functionName: functionName,
         chainId: sepolia.id,
         args: args
     })
     console.log(result)
+    return result;
 }
 export default contractReader;

@@ -1,5 +1,10 @@
 export const abi = [
 	{
+		"inputs": [],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
 		"inputs": [
 			{
 				"internalType": "string",
@@ -18,22 +23,12 @@ export const abi = [
 				"internalType": "string",
 				"name": "hash",
 				"type": "string"
-			},
-			{
-				"internalType": "uint256",
-				"name": "tokenid",
-				"type": "uint256"
 			}
 		],
 		"name": "editFile",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
-	},
-	{
-		"inputs": [],
-		"stateMutability": "nonpayable",
-		"type": "constructor"
 	},
 	{
 		"inputs": [],
