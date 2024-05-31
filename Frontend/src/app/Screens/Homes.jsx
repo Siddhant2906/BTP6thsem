@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef } from 'react';
 import axios from 'axios';
 import ReactCrop from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css'
