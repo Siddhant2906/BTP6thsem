@@ -1,10 +1,5 @@
 export const abi = [
 	{
-		"inputs": [],
-		"stateMutability": "nonpayable",
-		"type": "constructor"
-	},
-	{
 		"inputs": [
 			{
 				"internalType": "string",
@@ -29,6 +24,11 @@ export const abi = [
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
+	},
+	{
+		"inputs": [],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
 	},
 	{
 		"inputs": [],
@@ -94,4 +94,4 @@ export const abi = [
 		"stateMutability": "view",
 		"type": "function"
 	}
-] as const
+]
