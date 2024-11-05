@@ -15,7 +15,7 @@ async function contractReader(functionName, args) {
 
     const result = await readContract(config, {
         abi,
-        address: '0x88F71af24eE19bD093fdFd5F06EaFc72374cE7B9',
+        address: '0xea64cb29ecd7e48d6a5bc1b80a90fbb8c4ade795',
         functionName: functionName,
         chainId: sepolia.id,
         args: args
